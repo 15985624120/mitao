@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <link rel="stylesheet" href="css/reset.css">
+
+
+  <title><%= htmlWebpackPlugin.options.title %></title>
+</head>
+
+<body>
+  <script src="http://api.map.baidu.com/api?v=3.0&ak=xV52Qf9neRtyDEsyVr3nnLyyPXdMqoHl"></script>
+  <script>
+    if (localStorage.getItem('dinwei') == null) {
+      var geo = navigator.geolocation;
+      geo.getCurrentPosition(
+        (pos) => {
+          var jindu = pos.coords.longitude;
+          var weidu = pos.coords.latitude;
+          var map = new BMap.Map('')
+          //  /创建坐标点                经纬度 必须经度在前面
+          var zuobiao = new BMap.Point(jindu, weidu);
+          // 反正地址查找
+          var geocoder = new BMap.Geocoder();
+          geocoder.getLocation(zuobiao, (res) => { //res用于接收返回的地址
+            localStorage.setItem('dinwei', res.addressComponents.district)
+    
+          })
+        },
+        (err) => {
+          // console.log(err);
+        }
+      );
+    }
+
+    (function(){
+      let provinces = [
+      {
+        shortName:'1.7km·金竹路与金通大道交叉路口',
+        fullName:'北京市'
+      }
+    ];
+    // 获取Geolocation对象
+    let geo = navigator.geolocation;
+    // 调用getCurrentPosition()方法
+    geo.getCurrentPosition(
+      (position) => {
+        //获取到GeolocationPositionCoordinates对象
+        let coords = position.coords;
+        //获取经度
+        let longitude = coords.longitude;
+        //获取纬度
+        let latitude = coords.latitude;
+        //创建地图实例
+        let map = new BMap.Map('container');
+        //创建地图点坐标对象 -- Point对象
+        // let point = new BMap.Point(longitude,latitude);
+        // 106.472296,29.632273
+        let point = new BMap.Point(106.472296,29.632273);
+        //初始化地图实例
+        map.centerAndZoom(point,15);
+        //禁止地图拖拽功能
+        // map.disableDragging();
+        map.enableScrollWheelZoom()
+        //禁用鼠标滚动缩放地图
+        // map.disableScrollWheelZoom();
+        ///////////////////////////////////////////////////////
+
+        //*************创建缩放平移控**********************//
+
+        //创建Size对象,以控制缩放平移控件的距离
+        let size = new BMap.Size(20,20);
+        //创建NavigationControl(平移缩放)控件
+        let nc = new BMap.NavigationControl({
+            //设置停靠位置为左上角
+            anchor:BMAP_ANCHOR_TOP_RIGHT,
+            offset:size,
+            //设置类型为平移、缩入及滑块
+            type:BMAP_NAVIGATION_CONTROL_LARGE,
+        });
+        //添加NavigationControl(平移缩放)控件
+        map.addControl(nc); 
+        ///////////////////////////////////////////////////////
+        //*************创建覆盖物**********************//
+        //创建Size对象
+        let iconsize = new BMap.Size(32,32);
+        // 创建图标对象
+        let icon = new BMap.Icon('position.png',iconsize);
+        // 创建图像覆盖物对象
+        let marker = new BMap.Marker(point,{
+          icon:icon
+        });
+        // 将覆盖物对象添加到地图上
+        map.addOverlay(marker);
+        // 反地址解析
+        let geocoder = new BMap.Geocoder();
+        geocoder.getLocation(point,(result)=>{
+          document.getElementById('address').innerText = result.address;
+          let string = '';
+          
+          for(let n = 0;n<provinces.length;n++){
+            
+            if(provinces[n].fullName == result.addressComponents.province){
+              string += '<span class="active">' + provinces[n].shortName + '</span>&nbsp;&nbsp;';  
+            } else {
+              string += provinces[n].shortName + '&nbsp;&nbsp;';
+            }
+          }
+          document.getElementById('location').innerHTML = string;
+        });
+        ///////////////////////////////////////////////////////       
+      },
+      (error) => {
+          // console.log(error.code);
+          // console.log(code.message);
+      }
+    )
+    })();
+  </script>
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+      Please enable it to continue.</strong>
+  </noscript>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
+</body>
+
+</html>
