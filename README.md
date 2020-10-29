@@ -42,4 +42,5 @@
 ## 11.备注
 
   （1）由于git上传过程中node_modules丢失，下载项目后，需将node_modules文件移至nectarine\nectarine_isweb目录下
+  
   （2）在项目上传git的过程中，图片出现图片损坏，以至于图片无法正常显示，暂时无法解决
